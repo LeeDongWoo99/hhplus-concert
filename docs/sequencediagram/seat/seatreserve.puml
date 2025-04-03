@@ -1,0 +1,23 @@
+@startuml
+title 좌석 예약
+
+actor User
+participant "SeatController" as SC
+participant "SeatService" as SS
+participant "SeatRepository" as SR
+participant "ReservationList" as RL
+
+User -> SC: 좌석 예약 요청 (콘서트 세션 ID, 좌석 ID)
+SC -> SS: 좌석 예약 요청 (콘서트 세션 ID, 좌석 ID)
+SS -> SR: 좌석 상태를 RESERVED로 변경 (TTL 10분)
+SR --> SS: 좌석 예약 완료
+SS -> RL: 예약 목록에 추가 (상태: PENDING_PAYMENT)
+SS --> SC: 예약 성공 응답
+SC --> User: 좌석 예약 성공 메시지 반환
+
+alt 10분 초과 (결제 안 됨)
+    SS -> SR: 좌석 상태를 AVAILABLE로 변경
+    SS -> RL: 예약 상태를 PAYMENT_FAILED로 변경
+end
+
+@enduml

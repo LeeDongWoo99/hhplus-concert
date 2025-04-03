@@ -1,0 +1,16 @@
+@startuml
+title 대기열 토큰 발급
+
+actor User
+participant "QueueController" as QC
+participant "QueueService" as QS
+participant "QueueRepository" as QR
+
+User -> QC: 토큰 발급 요청
+QC -> QS: 토큰 생성 요청
+QS -> QR: 새로운 토큰 저장
+QR --> QS: 저장 완료
+QS --> QC: 생성된 토큰 반환
+QC --> User: QueueToken 반환
+
+@enduml

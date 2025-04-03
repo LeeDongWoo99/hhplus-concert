@@ -1,0 +1,25 @@
+@startuml
+title 좌석 환불
+
+actor User
+participant "RefundController" as RC
+participant "RefundService" as RS
+participant "PaymentRepository" as PR
+participant "SeatService" as SS
+participant "SeatRepository" as SR
+
+User -> RC: 환불 요청 (결제 Id)
+RC -> RS: 환불 처리 요청 (결제 Id)
+RS -> PR: 결제 정보 조회 (결제 ID)
+PR --> RS: 결제 정보 반환 (CONFIRMED)
+
+RS -> PR: 결제 상태를 REFUNDED로 변경
+PR --> RS: 업데이트 완료
+RS -> SS: 좌석 상태를 AVAILABLE로 변경
+SS -> SR: 좌석 상태 업데이트 (AVAILABLE)
+SR --> SS: 업데이트 완료
+
+RS --> RC: 환불 성공 응답
+RC --> User: 환불 완료 메시지 반환
+
+@enduml

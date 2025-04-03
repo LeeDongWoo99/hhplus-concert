@@ -1,0 +1,25 @@
+@startuml
+title 좌석 조회
+
+actor User
+participant "SeatController" as SC
+participant "QueueService" as QS
+participant "SeatService" as SS
+participant "SeatRepository" as SR
+
+User -> SC: 콘서트 좌석 조회 요청 (콘서트 회차 ID)
+SC -> QS: 유저 대기열 순서 확인
+
+alt 대기열 순서가 아직 안 됨
+    QS --> SC: 대기 중 (조회 불가)
+    SC --> User: 대기 중 안내 메시지
+else 유저 차례가 됨
+    QS --> SC: 조회 가능
+    SC -> SS: 좌석 정보 조회 요청 (콘서트 회차 ID)
+    SS -> SR: 좌석 데이터 조회 (콘서트 회차 ID 기준)
+    SR --> SS: 좌석 목록 반환
+    SS --> SC: 좌석 목록 반환
+    SC --> User: 좌석 목록 반환
+end
+
+@enduml

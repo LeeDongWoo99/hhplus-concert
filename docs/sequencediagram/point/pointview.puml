@@ -1,0 +1,16 @@
+@startuml
+title 잔액 조회 (Point View)
+
+actor User
+participant "PointController" as PC
+participant "PointService" as PS
+participant "PointRepository" as PR
+
+User -> PC: 잔액 조회 요청
+PC -> PS: 사용자 잔액 조회 요청
+PS -> PR: 사용자 잔액 조회
+PR --> PS: 현재 잔액 반환
+PS --> PC: 현재 잔액 반환
+PC --> User: 현재 잔액 반환
+
+@enduml
