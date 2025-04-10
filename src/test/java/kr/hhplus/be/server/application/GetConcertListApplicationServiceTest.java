@@ -6,6 +6,10 @@ import kr.hhplus.be.server.domain.ConcertSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,16 +21,14 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class GetConcertListApplicationServiceTest {
 
+    @Mock
     private ConcertRepository concertRepository;
-    private GetConcertListApplicationService getConcertListService;
 
-    @BeforeEach
-    void setUp() {
-        concertRepository = mock(ConcertRepository.class);
-        getConcertListService = new GetConcertListApplicationService(concertRepository);
-    }
+    @InjectMocks
+    private GetConcertListApplicationService getConcertListService;
 
     @Test
     @DisplayName("콘서트_목록을_정상적으로_조회한다")
