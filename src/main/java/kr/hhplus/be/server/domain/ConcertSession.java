@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record ConcertSession(
@@ -8,5 +9,6 @@ public record ConcertSession(
         UUID concertId,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
-        int availableSeats
+        int availableSeats,
+        List<Seat> seats
 ) {}
