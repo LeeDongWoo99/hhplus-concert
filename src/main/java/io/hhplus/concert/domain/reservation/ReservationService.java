@@ -26,7 +26,7 @@ public class ReservationService {
      * @return ReservationInfo.TemporaryReserve
      * @throws BusinessException
      */
-    @DistributedLock(key = "#command.concertSeat().id")
+    @DistributedLock(key = "'concert_seat:' + #command.concertSeat().id")
     @Transactional
     public ReservationInfo.TemporaryReserve temporaryReserve(ReservationCommand.TemporaryReserve command) {
 //        try{
