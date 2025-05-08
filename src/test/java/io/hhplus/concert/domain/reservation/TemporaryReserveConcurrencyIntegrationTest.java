@@ -106,7 +106,7 @@ public class TemporaryReserveConcurrencyIntegrationTest {
 
 		// then
 		long successfulReservations = results.stream().filter(
-			temporaryReserveFuture -> {
+			temporaryReserveFuture -> {		// 결과를 담는 임시 변수 명
 				try {
 					return temporaryReserveFuture.get() != null;
 				} catch (Exception e) {
@@ -175,4 +175,48 @@ public class TemporaryReserveConcurrencyIntegrationTest {
 		}
 		assertEquals(1, successfulReservations, "오직 한명의 유저만 좌석 예약에 성공한다");
 	}
+
+	@Test
+	void Redis락_기반_동시예약_테스트_열명중_한명만_성공() throws InterruptedException {
+		// given
+		int threadCount = 10;
+		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+		CountDownLatch latch = new CountDownLatch(threadCount);
+		List<Future<Boolean>> results = new ArrayList<>();
+
+		for (int i = 1; i <= threadCount; i++) {
+			final int index = i;
+			User user = userRepository.save(User.of("유저" + index));
+			ReservationCommand.TemporaryReserve command = ReservationCommand.TemporaryReserve.of(user, sampleConcertSeat);
+
+			results.add(executorService.submit(() -> {
+				latch.countDown();
+				latch.await();
+
+				try {
+					reservationService.temporaryReserve(command);
+					log.info("User{} 성공", index);
+					return true;
+				} catch (Exception e) {
+					log.info("User{} 실패: {}", index, e.getMessage());
+					return false;
+				}
+			}));
+		}
+
+		executorService.shutdown();
+		executorService.awaitTermination(5, TimeUnit.SECONDS);
+
+		// then
+		long successCount = results.stream().filter(result -> {
+			try {
+				return result.get();
+			} catch (Exception e) {
+				return false;
+			}
+		}).count();
+
+		assertEquals(1, successCount, "오직 한 명만 락 획득 및 임시 예약에 성공해야 한다.");
+	}
+
 }
