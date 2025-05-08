@@ -32,10 +32,15 @@ dependencies {
 	// Spring
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	// Swagger UI
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+	// Redisson
+	implementation 'org.redisson:redisson-spring-boot-starter:3.16.3'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -51,6 +56,7 @@ dependencies {
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'org.testcontainers:testcontainers:1.19.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -65,6 +71,8 @@ tasks.named('asciidoctor') {
 }
 
 tasks.withType(Test) {
+	jvmArgs '-Dfile.encoding=UTF-8'
+	systemProperty 'file.encoding', 'UTF-8'
 	useJUnitPlatform()
 	systemProperty 'user.timezone', 'UTC'
 }
