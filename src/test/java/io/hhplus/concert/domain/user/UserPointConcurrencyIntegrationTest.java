@@ -50,7 +50,7 @@ public class UserPointConcurrencyIntegrationTest {
 	void setUp() {
 		// truncate -> serUp -> 테스트케이스 수행 순으로 진행
 		// 유저 테스트 데이터 셋팅
-		sampleUser = User.of("최은강");
+		sampleUser = User.of("이동우");
 		userRepository.save(sampleUser);
 
 		sampleUserPoint = UserPoint.of(sampleUser); // 초기포인트 0 포인트
@@ -58,52 +58,31 @@ public class UserPointConcurrencyIntegrationTest {
 	}
 
 	@Test
-	@Order(1)
-	@Sql(statements = {
-		"SET SESSION innodb_lock_wait_timeout=10"
-	}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-	@Sql(statements = {
-		"SET SESSION innodb_lock_wait_timeout=50"
-	}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-	void 포인트_충전과_사용은_동시에_진행되어도_정합성이_깨지지_않아야_한다() throws Exception {
-		// given
+	void 동시에_여러요청이_들어와도_포인트는_한번만_충전된다() throws InterruptedException {
 		long userId = sampleUser.getId();
 
-		// 먼저 10,000원 충전
-		userService.chargePoint(UserPointCommand.ChargePoint.of(userId, 10_000L));
+		int threadCount = 10;
+		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+		CountDownLatch latch = new CountDownLatch(threadCount);
 
-		// 두 작업이 동시에 실행되도록 조율하는 CyclicBarrier
-		CyclicBarrier barrier = new CyclicBarrier(2);
-
-		ExecutorService executor = Executors.newFixedThreadPool(2);
-		List<Future<Long>> results = new ArrayList<>();
-
-		// 충전 쓰레드
-		results.add(executor.submit(() -> {
-			log.info("::: 포인트 충전 스레드 실행");
-			long start = System.currentTimeMillis();
-			barrier.await(); // 🔥 다른 스레드가 도달할 때까지 대기
-			userService.chargePoint(UserPointCommand.ChargePoint.of(userId, 5_000L));
-			return System.currentTimeMillis() - start;
-		}));
-
-		// 사용 쓰레드
-		results.add(executor.submit(() -> {
-			log.info("::: 포인트 사용 스레드 실행");
-			long start = System.currentTimeMillis();
-			barrier.await(); // 🔥 두 스레드가 동시에 실행되도록 조율
-			userService.usePoint(UserPointCommand.UsePoint.of(userId, 5_000L));
-			return System.currentTimeMillis() - start;
-		}));
-
-		// when: 두 작업이 완료될 때까지 기다림
-		for (Future<Long> result : results) {
-			long executeTime = result.get(); // 예외 발생 시 여기서 잡힘
-			log.info("소요시간: {}ms", executeTime);
+		for (int i = 0; i < threadCount; i++) {
+			executorService.submit(() -> {
+				try {
+					userService.chargePoint(new UserPointCommand.ChargePoint(userId, 1000L));
+				} catch (Exception e) {
+					// 중복 충전 시 예외 발생 가능 (락 획득 실패 등)
+					System.out.println("예외 발생: " + e.getMessage());
+				} finally {
+					latch.countDown();
+				}
+			});
 		}
 
-		// then: 최종 포인트는 10,000 + 5,000 - 5,000 = 10,000
-		UserInfo.GetCurrentPoint info = userService.getCurrentPoint(UserPointCommand.GetCurrentPoint.of(userId));
-		assertEquals(10_000L, info.point());
+		latch.await();
+
+		UserPoint result = userPointRepository.findByUserId(userId);
+		assertNotNull(result);
+		assertEquals(1000L, result.getPoint()); // 단 1번만 충전되었는지 확인
 	}
+
 }
