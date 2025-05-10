@@ -21,7 +21,7 @@ public class UserService {
      * @param command
      * @return UserInfo.UserPoint
      */
-    @RedisSimpleLock(key = "'user_point:' + #command.userId", timeout = 3000)
+    @RedisSimpleLock(key = "'user_point:' + #command.userId")
     @Transactional
     public UserInfo.ChargePoint chargePoint(UserPointCommand.ChargePoint command) {
         // 유저 포인트정보 조회
@@ -44,6 +44,7 @@ public class UserService {
      * @param command
      * @return UserInfo.UserPoint
      */
+    @RedisSimpleLock(key = "'user_point:' + #command.userId")
     @Transactional
     public UserInfo.UsePoint usePoint(UserPointCommand.UsePoint command) {
         // 유저 정보 조회

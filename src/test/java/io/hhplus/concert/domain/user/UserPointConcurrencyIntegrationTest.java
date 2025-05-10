@@ -54,6 +54,7 @@ public class UserPointConcurrencyIntegrationTest {
 		userRepository.save(sampleUser);
 
 		sampleUserPoint = UserPoint.of(sampleUser); // 초기포인트 0 포인트
+		sampleUserPoint.charge(3000L);
 		userPointRepository.save(sampleUserPoint);
 	}
 
@@ -61,7 +62,7 @@ public class UserPointConcurrencyIntegrationTest {
 	void 동시에_여러요청이_들어와도_포인트는_한번만_충전된다() throws InterruptedException {
 		long userId = sampleUser.getId();
 
-		int threadCount = 10;
+		int threadCount = 15;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -82,7 +83,36 @@ public class UserPointConcurrencyIntegrationTest {
 
 		UserPoint result = userPointRepository.findByUserId(userId);
 		assertNotNull(result);
-		assertEquals(1000L, result.getPoint()); // 단 1번만 충전되었는지 확인
+		assertEquals(4000L, result.getPoint()); // 단 1번만 충전되었는지 확인
 	}
 
+	@Test
+	void 동시에_포인트_사용요청이_들어와도_한번만_사용된다() throws InterruptedException {
+		long userId = sampleUser.getId();
+
+		int threadCount = 10;
+		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+		CountDownLatch latch = new CountDownLatch(threadCount);
+
+		for (int i = 0; i < threadCount; i++) {
+			executorService.submit(() -> {
+				try {
+					userService.usePoint(new UserPointCommand.UsePoint(userId, 1000L));
+					return true;
+				} catch (Exception e) {
+					System.out.println("예외 발생: " + e.getMessage());
+					return false;
+				} finally {
+					latch.countDown();
+				}
+			});
+		}
+
+		latch.await();
+
+
+		UserPoint result = userPointRepository.findByUserId(userId);
+		assertNotNull(result);
+		assertEquals(2000L, result.getPoint());
+	}
 }
