@@ -25,7 +25,9 @@ spring:
     redis:
       host: localhost
       port: 6379
-
+logging:
+  level:
+    io.hhplus.concert: DEBUG
 ---
 spring.config.activate.on-profile: local, test
 

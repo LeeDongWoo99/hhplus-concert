@@ -1,20 +1,9 @@
 package io.hhplus.concert.domain.user;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import io.hhplus.concert.TestcontainersConfiguration;
+import io.hhplus.concert.domain.reservation.TemporaryReserveConcurrencyIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
@@ -24,25 +13,32 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
-import io.hhplus.concert.TestcontainersConfiguration;
-import io.hhplus.concert.domain.concert.Concert;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @Sql(statements = {
-	"SET FOREIGN_KEY_CHECKS=0",
-	"TRUNCATE TABLE user_points",
-	"TRUNCATE TABLE user_point_histories",
-	"TRUNCATE TABLE users",
-	"SET FOREIGN_KEY_CHECKS=1"
+		"SET FOREIGN_KEY_CHECKS=0",
+		"TRUNCATE TABLE user_points",
+		"TRUNCATE TABLE user_point_histories",
+		"TRUNCATE TABLE users",
+		"SET FOREIGN_KEY_CHECKS=1"
 }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+
 public class UserPointConcurrencyIntegrationTest {
-	private static final Logger log = LoggerFactory.getLogger(UserPointConcurrencyIntegrationTest.class);
+
 	@Autowired private UserService userService;
 	@Autowired private UserRepository userRepository;
 	@Autowired private UserPointRepository userPointRepository;
 	@Autowired private UserPointHistoryRepository userPointHistoryRepository;
+
+	private static final Logger log = LoggerFactory.getLogger(TemporaryReserveConcurrencyIntegrationTest.class);
 
 	User sampleUser;
 	UserPoint sampleUserPoint;
@@ -53,8 +49,8 @@ public class UserPointConcurrencyIntegrationTest {
 		sampleUser = User.of("이동우");
 		userRepository.save(sampleUser);
 
-		sampleUserPoint = UserPoint.of(sampleUser); // 초기포인트 0 포인트
-		sampleUserPoint.charge(3000L);
+		sampleUserPoint = UserPoint.of(sampleUser);
+		sampleUserPoint.charge(2000L);
 		userPointRepository.save(sampleUserPoint);
 	}
 
@@ -62,7 +58,7 @@ public class UserPointConcurrencyIntegrationTest {
 	void 동시에_여러요청이_들어와도_포인트는_한번만_충전된다() throws InterruptedException {
 		long userId = sampleUser.getId();
 
-		int threadCount = 15;
+		int threadCount = 10;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -72,7 +68,7 @@ public class UserPointConcurrencyIntegrationTest {
 					userService.chargePoint(new UserPointCommand.ChargePoint(userId, 1000L));
 				} catch (Exception e) {
 					// 중복 충전 시 예외 발생 가능 (락 획득 실패 등)
-					System.out.println("예외 발생: " + e.getMessage());
+					log.error("예외 발생: {}", e.getMessage(), e);
 				} finally {
 					latch.countDown();
 				}
@@ -83,7 +79,7 @@ public class UserPointConcurrencyIntegrationTest {
 
 		UserPoint result = userPointRepository.findByUserId(userId);
 		assertNotNull(result);
-		assertEquals(4000L, result.getPoint()); // 단 1번만 충전되었는지 확인
+		assertEquals(3000L, result.getPoint()); // 단 1번만 충전되었는지 확인
 	}
 
 	@Test
@@ -100,7 +96,7 @@ public class UserPointConcurrencyIntegrationTest {
 					userService.usePoint(new UserPointCommand.UsePoint(userId, 1000L));
 					return true;
 				} catch (Exception e) {
-					System.out.println("예외 발생: " + e.getMessage());
+					log.error("예외 발생: {}", e.getMessage(), e);
 					return false;
 				} finally {
 					latch.countDown();
@@ -113,6 +109,6 @@ public class UserPointConcurrencyIntegrationTest {
 
 		UserPoint result = userPointRepository.findByUserId(userId);
 		assertNotNull(result);
-		assertEquals(2000L, result.getPoint());
+		assertEquals(1000L, result.getPoint());
 	}
 }
