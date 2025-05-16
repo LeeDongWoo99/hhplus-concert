@@ -1,12 +1,16 @@
 package io.hhplus.concert.application.usecase.payment;
 
-import static io.hhplus.concert.interfaces.api.payment.PaymentErrorCode.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
+import io.hhplus.concert.domain.concert.Concert;
+import io.hhplus.concert.domain.concert.ConcertDate;
+import io.hhplus.concert.domain.concert.ConcertSeat;
+import io.hhplus.concert.domain.payment.Payment;
+import io.hhplus.concert.domain.payment.PaymentCommand;
+import io.hhplus.concert.domain.payment.PaymentInfo;
+import io.hhplus.concert.domain.payment.PaymentService;
+import io.hhplus.concert.domain.reservation.*;
+import io.hhplus.concert.domain.user.*;
+import io.hhplus.concert.event.PaymentEventPublisher;
+import io.hhplus.concert.interfaces.api.common.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,27 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.hhplus.concert.application.usecase.reservation.ReserveConcertSeatTest;
-import io.hhplus.concert.domain.concert.Concert;
-import io.hhplus.concert.domain.concert.ConcertDate;
-import io.hhplus.concert.domain.concert.ConcertSeat;
-import io.hhplus.concert.domain.payment.Payment;
-import io.hhplus.concert.domain.payment.PaymentCommand;
-import io.hhplus.concert.domain.payment.PaymentInfo;
-import io.hhplus.concert.domain.payment.PaymentService;
-import io.hhplus.concert.domain.reservation.Reservation;
-import io.hhplus.concert.domain.reservation.ReservationCommand;
-import io.hhplus.concert.domain.reservation.ReservationInfo;
-import io.hhplus.concert.domain.reservation.ReservationService;
-import io.hhplus.concert.domain.reservation.ReservationStatus;
-import io.hhplus.concert.domain.user.User;
-import io.hhplus.concert.domain.user.UserCommand;
-import io.hhplus.concert.domain.user.UserInfo;
-import io.hhplus.concert.domain.user.UserPoint;
-import io.hhplus.concert.domain.user.UserPointCommand;
-import io.hhplus.concert.domain.user.UserService;
-import io.hhplus.concert.interfaces.api.common.BusinessException;
-import io.hhplus.concert.interfaces.api.payment.PaymentResponse;
+import java.time.LocalDate;
+
+import static io.hhplus.concert.interfaces.api.payment.PaymentErrorCode.NOT_VALID_STATUS_FOR_PAYMENT;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PayAndConfirmTest {
@@ -48,10 +36,12 @@ public class PayAndConfirmTest {
 	private ReservationService reservationService;
 	@Mock
 	private PaymentService paymentService;
+	@Mock
+	private PaymentEventPublisher eventPublisher;
 
 	@BeforeEach
 	void setUp() {
-		paymentUsecase = new PaymentUsecase(userService, reservationService, paymentService);
+		paymentUsecase = new PaymentUsecase(userService, reservationService, paymentService, eventPublisher);
 	}
 	private static final Logger log = LoggerFactory.getLogger(PayAndConfirmTest.class);
 
