@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.reservation;
+package io.hhplus.concert.infrastructure.config;
 
 import lombok.Getter;
 import lombok.Setter;

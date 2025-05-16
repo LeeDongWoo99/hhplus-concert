@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.user;
+package io.hhplus.concert.infrastructure.lock.common.user;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

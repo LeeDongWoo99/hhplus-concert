@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.reservation;
+package io.hhplus.concert.infrastructure.lock.reservation;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
