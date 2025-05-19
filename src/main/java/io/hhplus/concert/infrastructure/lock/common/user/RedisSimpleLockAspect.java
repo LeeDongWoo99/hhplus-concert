@@ -1,6 +1,6 @@
-package io.hhplus.concert.domain.user;
+package io.hhplus.concert.infrastructure.lock.common.user;
 
-import io.hhplus.concert.domain.reservation.SpELParser;
+import io.hhplus.concert.infrastructure.lock.reservation.SpELParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,9 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Order(1)
 @Aspect

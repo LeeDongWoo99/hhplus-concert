@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.reservation;
+package io.hhplus.concert.infrastructure.lock.reservation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.reservation;
+package io.hhplus.concert.infrastructure.lock.reservation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
