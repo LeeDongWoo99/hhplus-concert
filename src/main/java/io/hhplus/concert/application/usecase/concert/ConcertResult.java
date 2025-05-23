@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ConcertResult {
 
-    public record TopSellingConcerts(List<String> concertIds) {
+    public record TopSellingConcerts(List<String> concertIds) { // 파라미터 이름 수정 필요
         public static TopSellingConcerts of(List<String> concertIds) {
             return new TopSellingConcerts(concertIds);
         }

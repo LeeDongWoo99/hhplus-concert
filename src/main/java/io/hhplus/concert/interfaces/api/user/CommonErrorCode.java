@@ -17,7 +17,8 @@ public enum CommonErrorCode implements BusinessErrorCode {
 	BUSINESS_RULE_VIOLATION(HttpStatus.UNPROCESSABLE_ENTITY, "도메인 규칙에 위반되었습니다"),
 	INVALID_ACCESS(HttpStatus.NOT_ACCEPTABLE, "잘못된 접근입니다"),
 
-	INTERNAL_SERVER_ERROR (HttpStatus.INTERNAL_SERVER_ERROR ,"서버 내부에서 발생한 오류입니다.");
+	INTERNAL_SERVER_ERROR (HttpStatus.INTERNAL_SERVER_ERROR ,"서버 내부에서 발생한 오류입니다."),
+	CONCERT_RANK_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 콘서트에 대한 랭킹 정보가 없습니다.");
 
 
 	private final HttpStatus httpStatus;

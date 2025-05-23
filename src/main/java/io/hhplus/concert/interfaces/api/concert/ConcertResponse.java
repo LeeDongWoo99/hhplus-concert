@@ -82,4 +82,27 @@ public record ConcertResponse(long id, String name, String artistName) { // Page
 			);
 		}
 	}
+
+	/**
+	 * 인기 콘서트 TOP 5 목록 응답
+	 */
+	public record GetTopSellingConcerts(
+			List<String> topConcerts
+	) {
+		public static GetTopSellingConcerts of(List<String> topConcerts) {
+			return new GetTopSellingConcerts(topConcerts);
+		}
+	}
+
+	/**
+	 * 특정 콘서트의 인기 순위 응답
+	 */
+	public record GetConcertRank(
+			Long concertId,
+			int rank
+	) {
+		public static GetConcertRank of(Long concertId, int rank) {
+			return new GetConcertRank(concertId, rank);
+		}
+	}
 }
