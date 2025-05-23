@@ -11,8 +11,8 @@ import io.hhplus.concert.domain.user.UserInfo;
 import io.hhplus.concert.domain.user.UserPoint;
 import io.hhplus.concert.domain.user.UserPointCommand;
 import io.hhplus.concert.domain.user.UserService;
-import io.hhplus.concert.event.PaymentEvent;
-import io.hhplus.concert.event.PaymentEventPublisher;
+import io.hhplus.concert.domain.payment.PaymentCompletedEvent;
+import io.hhplus.concert.domain.payment.PaymentEventPublisher;
 import io.hhplus.concert.interfaces.api.common.BusinessException;
 import io.hhplus.concert.interfaces.api.common.InvalidValidationException;
 import lombok.RequiredArgsConstructor;
@@ -61,8 +61,12 @@ public class PaymentUsecase {
 			PaymentInfo.CreatePayment paymentInfo = paymentService.create(PaymentCommand.CreatePayment.of(reservation));
 
 			// 이벤트 발행
-			Long concertId = reservation.getConcertId();
-			eventPublisher.publishEvent(new PaymentEvent(concertId));
+			String concertName = reservation.getConcert().getName();
+			long concertId = reservation.getConcertId();
+			long concertDateId = reservation.getConcertDate().getId();
+			long seatId = reservation.getConcertSeat().getId();
+
+			eventPublisher.publishEvent(new PaymentCompletedEvent(concertName, concertId, concertDateId, seatId, concertSeatPrice));
 			return PaymentResult.PayAndConfirm.of(paymentInfo);
 		}
 		throw new BusinessException(NOT_VALID_STATUS_FOR_PAYMENT);
