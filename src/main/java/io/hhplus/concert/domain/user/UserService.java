@@ -1,6 +1,7 @@
 package io.hhplus.concert.domain.user;
 
 
+import io.hhplus.concert.infrastructure.lock.common.user.RedisSimpleLock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

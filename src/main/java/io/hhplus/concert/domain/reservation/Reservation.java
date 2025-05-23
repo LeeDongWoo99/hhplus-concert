@@ -199,4 +199,8 @@ public class Reservation extends BaseEntity {
 		if(this.reservedAt == null) return false;
 		return true;
 	}
+
+	public Long getConcertId() {
+		return this.concert.getId();
+	}
 }

@@ -1,6 +1,6 @@
 package io.hhplus.concert.application.usecase.concert;
 
-import io.hhplus.concert.domain.concert.ConcertSalesRankingService;
+import io.hhplus.concert.domain.rank.ConcertSalesRankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

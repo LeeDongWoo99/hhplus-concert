@@ -13,5 +13,4 @@ public class ReservationCriteria {
 			return new ReserveConcertSeat(userId, concertSeatId);
 		}
 	}
-
 }

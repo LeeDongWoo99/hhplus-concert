@@ -9,7 +9,7 @@ import io.hhplus.concert.domain.payment.PaymentInfo;
 import io.hhplus.concert.domain.payment.PaymentService;
 import io.hhplus.concert.domain.reservation.*;
 import io.hhplus.concert.domain.user.*;
-import io.hhplus.concert.event.PaymentEventPublisher;
+import io.hhplus.concert.domain.payment.PaymentEventPublisher;
 import io.hhplus.concert.interfaces.api.common.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
