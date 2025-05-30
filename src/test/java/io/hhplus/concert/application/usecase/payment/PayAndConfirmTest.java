@@ -5,11 +5,11 @@ import io.hhplus.concert.domain.concert.ConcertDate;
 import io.hhplus.concert.domain.concert.ConcertSeat;
 import io.hhplus.concert.domain.payment.Payment;
 import io.hhplus.concert.domain.payment.PaymentCommand;
+import io.hhplus.concert.domain.payment.KafkaPaymentMessagePublisher;
 import io.hhplus.concert.domain.payment.PaymentInfo;
 import io.hhplus.concert.domain.payment.PaymentService;
 import io.hhplus.concert.domain.reservation.*;
 import io.hhplus.concert.domain.user.*;
-import io.hhplus.concert.domain.payment.PaymentEventPublisher;
 import io.hhplus.concert.interfaces.api.common.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +37,11 @@ public class PayAndConfirmTest {
 	@Mock
 	private PaymentService paymentService;
 	@Mock
-	private PaymentEventPublisher eventPublisher;
+	private KafkaPaymentMessagePublisher paymentEventPublisher;
 
 	@BeforeEach
 	void setUp() {
-		paymentUsecase = new PaymentUsecase(userService, reservationService, paymentService, eventPublisher);
+		paymentUsecase = new PaymentUsecase(userService, reservationService, paymentService, paymentEventPublisher);
 	}
 	private static final Logger log = LoggerFactory.getLogger(PayAndConfirmTest.class);
 

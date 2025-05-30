@@ -1,20 +1,14 @@
 package io.hhplus.concert.domain.payment;
 
-import static io.hhplus.concert.interfaces.api.payment.PaymentErrorCode.*;
 import static io.hhplus.concert.interfaces.api.user.CommonErrorCode.*;
-import static io.hhplus.concert.interfaces.api.user.UserErrorCode.*;
 
 import io.hhplus.concert.domain.common.BaseEntity;
-import io.hhplus.concert.domain.concert.ConcertSeat;
 import io.hhplus.concert.domain.reservation.Reservation;
-import io.hhplus.concert.domain.user.User;
-import io.hhplus.concert.domain.user.UserPoint;
 import io.hhplus.concert.interfaces.api.common.BusinessException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
