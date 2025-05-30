@@ -1,8 +1,7 @@
 package io.hhplus.concert.application.usecase.payment;
 
-import io.hhplus.concert.domain.payment.PaymentCommand;
-import io.hhplus.concert.domain.payment.PaymentInfo;
-import io.hhplus.concert.domain.payment.PaymentService;
+import io.hhplus.concert.domain.payment.*;
+import io.hhplus.concert.domain.payment.KafkaPaymentMessagePublisher;
 import io.hhplus.concert.domain.reservation.Reservation;
 import io.hhplus.concert.domain.reservation.ReservationCommand;
 import io.hhplus.concert.domain.reservation.ReservationInfo;
@@ -11,8 +10,6 @@ import io.hhplus.concert.domain.user.UserInfo;
 import io.hhplus.concert.domain.user.UserPoint;
 import io.hhplus.concert.domain.user.UserPointCommand;
 import io.hhplus.concert.domain.user.UserService;
-import io.hhplus.concert.domain.payment.PaymentCompletedEvent;
-import io.hhplus.concert.domain.payment.PaymentEventPublisher;
 import io.hhplus.concert.interfaces.api.common.BusinessException;
 import io.hhplus.concert.interfaces.api.common.InvalidValidationException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +24,7 @@ public class PaymentUsecase {
 	private final UserService userService;
 	private final ReservationService reservationService;
 	private final PaymentService paymentService;
-	private final PaymentEventPublisher eventPublisher;
+	private final KafkaPaymentMessagePublisher paymentEventPublisher;
 
 	/**
 	 * 임시예약 상태(5분간 좌석예약) 에서 결제 요청 유즈케이스<br><br>
@@ -66,7 +63,8 @@ public class PaymentUsecase {
 			long concertDateId = reservation.getConcertDate().getId();
 			long seatId = reservation.getConcertSeat().getId();
 
-			eventPublisher.publishEvent(new PaymentCompletedEvent(concertName, concertId, concertDateId, seatId, concertSeatPrice));
+
+			paymentEventPublisher.publish(new PaymentCompletedMessage(concertName, concertId, concertDateId, seatId, concertSeatPrice));
 			return PaymentResult.PayAndConfirm.of(paymentInfo);
 		}
 		throw new BusinessException(NOT_VALID_STATUS_FOR_PAYMENT);
